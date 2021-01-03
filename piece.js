@@ -10,10 +10,7 @@ class Piece {
             }
         }
         this.pos = createVector(Math.ceil((8 - this.grid[0].length) / 2), 0);
-        this.centerOffset = createVector(
-            floor(this.grid[0].length / 2),
-            ceil(this.grid.length / 2)
-        );
+        this.centerOffset = createVector(json.center[0], json.center[1]);
     }
 
     rotateLeft() {
@@ -29,12 +26,12 @@ class Piece {
         this.grid = newGrid;
 
         //Calculates a new position so the piece stays centered around the same piece
+        var newOffset = createVector(this.centerOffset.y, this.grid.length - this.centerOffset.x);
         this.pos = createVector(
-            this.pos.x + this.centerOffset.x - floor(this.grid[0].length / 2),
-            this.pos.y + this.centerOffset.y - ceil(this.grid.length / 2)
+            this.pos.x + this.centerOffset.x - newOffset.x,
+            this.pos.y + this.centerOffset.y - newOffset.y
         );
-        this.centerOffset.x = floor(this.grid[0].length / 2);
-        this.centerOffset.y = ceil(this.grid.length / 2);
+        this.centerOffset = newOffset;
     }
 
     rotateRight() {
@@ -50,12 +47,12 @@ class Piece {
         this.grid = newGrid;
 
         //Calculates a new position so the piece stays centered around the same piece
+        var newOffset = createVector(this.grid[0].length - this.centerOffset.y, this.centerOffset.x);
         this.pos = createVector(
-            this.pos.x + this.centerOffset.x - floor(this.grid[0].length / 2),
-            this.pos.y + this.centerOffset.y - ceil(this.grid.length / 2)
+            this.pos.x + this.centerOffset.x - newOffset.x,
+            this.pos.y + this.centerOffset.y - newOffset.y
         );
-        this.centerOffset.x = floor(this.grid[0].length / 2);
-        this.centerOffset.y = ceil(this.grid.length / 2);
+        this.centerOffset = newOffset;
     }
 
     move(x, y) {

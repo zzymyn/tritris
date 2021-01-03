@@ -356,12 +356,12 @@ class Game {
                 //TODO: we could also just prioritize a direction to wallkick in this case.
             } else if (validLeft) {
                 // the piece can wallkick to the left only
-                this.currentPiece.move(-1, 0);
+                this.currentPiece.move(-horzDirection - 1, 0);
                 this.playMoveSound = true;
                 return false; //Don't place the piece
             } else if (validRight) {
                 // the piece can wallkick to the right only
-                this.currentPiece.move(1, 0);
+                this.currentPiece.move(-horzDirection + 1, 0);
                 this.playMoveSound = true;
                 return false; //Don't place the piece
             }
