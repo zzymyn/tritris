@@ -339,6 +339,34 @@ class Game {
             if (rotation != 0) this.playMoveSound = true;
             return false; //Don't place the piece
         }
+
+        if (rotation != 0) {
+            //If we're trying to rotate, but are blocked, undo horz move and check both left and right wallkicks:
+            this.currentPiece.move(-horzDirection + 1, 0);
+            const validRight = this.isValid(this.currentPiece);
+
+            this.currentPiece.move(-2, 0);
+            const validLeft = this.isValid(this.currentPiece);
+
+            //Put piece back to where it was:
+            this.currentPiece.move(horzDirection + 1, 0);
+
+            if (validLeft && validRight) {
+                //If both wallkicks are valid, don't do anything due to the ambiguity
+                //TODO: we could also just prioritize a direction to wallkick in this case.
+            } else if (validLeft) {
+                // the piece can wallkick to the left only
+                this.currentPiece.move(-1, 0);
+                this.playMoveSound = true;
+                return false; //Don't place the piece
+            } else if (validRight) {
+                // the piece can wallkick to the right only
+                this.currentPiece.move(1, 0);
+                this.playMoveSound = true;
+                return false; //Don't place the piece
+            }
+        }
+
         //If blocked, undo horz move and maybe wall-charge
         this.currentPiece.move(-horzDirection, 0);
         valid = this.isValid(this.currentPiece);
