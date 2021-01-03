@@ -91,8 +91,9 @@ class Game {
         this.downWasPressed = false;
         this.leftWasPressed = false;
         this.rightWasPressed = false;
-        this.zWasPressed = false;
-        this.xWasPressed = false;
+        this.zWasConsumed = false;
+        this.xWasConsumed = false;
+        this.rotationConsumedThisFrame = false;
 
         this.playClearSound = false;
         this.playFallSound = false;
@@ -207,8 +208,8 @@ class Game {
                 if (keyIsDown(RIGHT_ARROW)) horzDirection = 1;
             }
 
-            const zPressed = keyIsDown(90) && !this.zWasPressed;
-            const xPressed = keyIsDown(88) && !this.xWasPressed;
+            const zPressed = keyIsDown(90) && !this.zWasConsumed;
+            const xPressed = keyIsDown(88) && !this.xWasConsumed;
             const rotation = (zPressed ? -1 : 0) + (xPressed ? 1 : 0);
 
             let pieceSpeed = this.pieceSpeed;
@@ -246,9 +247,10 @@ class Game {
         this.downWasPressed = keyIsDown(DOWN_ARROW);
         this.leftWasPressed = keyIsDown(LEFT_ARROW);
         this.rightWasPressed = keyIsDown(RIGHT_ARROW);
-        this.zWasPressed = keyIsDown(90); //If Z was pressed
-        this.xWasPressed = keyIsDown(88); //If X was pressed
+        this.zWasConsumed = this.zWasConsumed && keyIsDown(90) || this.rotationConsumedThisFrame; //If Z was consumed
+        this.xWasConsumed = this.xWasConsumed && keyIsDown(88) || this.rotationConsumedThisFrame; //If X was consumed
         this.lastFrame = Date.now();
+        this.rotationConsumedThisFrame = false;
     }
 
     placePiece() {
@@ -336,11 +338,14 @@ class Game {
             if (horzDirection != 0) {
                 this.playMoveSound = true;
             }
-            if (rotation != 0) this.playMoveSound = true;
+            if (rotation != 0) {
+                this.playMoveSound = true;
+                this.rotationConsumedThisFrame = true;
+            }
             return false; //Don't place the piece
         }
 
-        if (rotation != 0) {
+        if (this.currentPiece.canWallKick() && rotation != 0) {
             //If we're trying to rotate, but are blocked, undo horz move and check both left and right wallkicks:
             this.currentPiece.move(-horzDirection + 1, 0);
             const validRight = this.isValid(this.currentPiece);
@@ -358,11 +363,13 @@ class Game {
                 // the piece can wallkick to the left only
                 this.currentPiece.move(-horzDirection - 1, 0);
                 this.playMoveSound = true;
+                this.rotationConsumedThisFrame = true;
                 return false; //Don't place the piece
             } else if (validRight) {
                 // the piece can wallkick to the right only
                 this.currentPiece.move(-horzDirection + 1, 0);
                 this.playMoveSound = true;
+                this.rotationConsumedThisFrame = true;
                 return false; //Don't place the piece
             }
         }
@@ -373,7 +380,10 @@ class Game {
         if (valid) {
             //If the piece was block when moving horz, then wall charge
             this.das = this.dasMax;
-            if (rotation != 0) this.playMoveSound = true;
+            if (rotation != 0) {
+                this.playMoveSound = true;
+                this.rotationConsumedThisFrame = true;
+            }
             return false;
         }
 
