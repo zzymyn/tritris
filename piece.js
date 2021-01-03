@@ -11,6 +11,11 @@ class Piece {
         }
         this.pos = createVector(Math.ceil((8 - this.grid[0].length) / 2), 0);
         this.centerOffset = createVector(json.center[0], json.center[1]);
+        this._canWallKick = json.canWallKick;
+    }
+
+    canWallKick() {
+        return this._canWallKick;
     }
 
     rotateLeft() {
